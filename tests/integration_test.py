@@ -39,7 +39,6 @@ class TestModelAppIntegration(unittest.TestCase):
 
         # Convert to lowercase HTML for class check
         html_text = response.data.decode('utf-8').lower()
-
         valid_classes = [
             'clear', 'cloudy', 'drizzly', 'foggy', 'hazey',
             'misty', 'rainy', 'smokey', 'thunderstorm'
