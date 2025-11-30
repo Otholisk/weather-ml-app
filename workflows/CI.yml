@@ -1,1 +1,66 @@
+name: CI
 
+on:
+  # Detect changes to  GitHub Repo
+  push:
+    branches: ["main", "bugfix"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-test-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/weather-ml-app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Installing Flask and dependencies for requirements.txt
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Runs test files in Task 2 each 
+      - name: Run smoke tests
+        run: python -m unittest tests.smoke_test
+
+      - name: Run unit tests
+        run: python -m unittest tests.unit_test
+
+      - name: Run integration tests
+        run: python -m unittest tests.integration_test
+
+      # Builds a Docker Image from the Dockerfile
+      - name: Build Docker image
+        run: |
+          docker build -t $IMAGE_REPO:${{ github.sha }} .
+
+      # Tests that a container can be launched from the image
+      - name: Test container can start
+        run: |
+          docker run --rm $IMAGE_REPO:${{ github.sha }} \
+            python -c "print('Container started OK')"
+
+      # Pushs the Image to DockerHub.
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Tag image as latest
+        run: |
+          docker tag $IMAGE_REPO:${{ github.sha }} $IMAGE_REPO:latest
+
+      - name: Push image to DockerHub
+        run: |
+          docker push $IMAGE_REPO:latest
