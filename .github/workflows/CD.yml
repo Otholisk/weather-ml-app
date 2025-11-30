@@ -1,1 +1,19 @@
+name: CD
+on:
+  push:
+    branches: ["main"]
 
+jobs:
+  deploy-to-kubernetes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Deploys passed builds to Kubernetes without disrupting services
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl rollout status deployment/weather-ml-deployment
