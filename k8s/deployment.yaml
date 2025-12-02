@@ -1,1 +1,19 @@
-image: otholsk/weather-ml-app:latest
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-ml-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-ml
+  template:
+    metadata:
+      labels:
+        app: weather-ml
+    spec:
+      containers:
+        - name: weather-ml
+          image: otholisk/weather-ml-app:latest
+          ports:
+            - containerPort: 5000
