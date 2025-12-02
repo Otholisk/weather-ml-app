@@ -7,10 +7,6 @@ EXPOSE 5000
 # Install dependencies
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
-#Flask gunicorn
-#RUN pip install numpy
-#RUN pip install scikit-learn
-#RUN pip install pandas 
 # Copy the rest of the application code
 COPY . .
 # Run the app
